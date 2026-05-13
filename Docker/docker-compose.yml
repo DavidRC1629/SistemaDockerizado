@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: ecommerce_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: ecommerce_lp2_prod
+      MYSQL_USER: ecommerce
+      MYSQL_PASSWORD: ecommerce123
+      TZ: 'America/Lima'
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ecommerce_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ../ecommerce
+      dockerfile: ../Docker/Dockerfile
+    container_name: ecommerce_app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ecommerce_lp2_prod?serverTimezone=America/Lima&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8084:8084"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  ecommerce_network:
+    driver: bridge

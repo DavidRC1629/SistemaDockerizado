@@ -1,0 +1,30 @@
+# Maven
+target/
+.m2/
+*.jar
+*.war
+*.zip
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+
+# Database
+*.sql
+
+# Logs
+*.log
+logs/
+
+# Temp
+.classpath
+.project
+.settings/
+bin/
